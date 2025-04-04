@@ -1,0 +1,12 @@
+# Ignorar datasets y modelos
+Dataset/
+models/
+
+# Archivos de sistema
+*.pyc
+__pycache__/
+
+# Archivos de entorno virtual (si usas venv)
+.env
+venv/
+ENV/

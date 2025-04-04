@@ -1,63 +1,82 @@
-# streamlit_app.py
 import streamlit as st
-import pandas as pd
-import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-import pickle
+from src.load_data import load_all_data
+from src.preprocess import build_user_aisle_matrix
+from src.clustering import segment_users
+from src.recommender import recommend_top_products_for_cluster
+from src.search_engine import ProductSearchEngine
+from src.svd_recommender import SVDRecommenderLoaded
+from src.market_basket import prepare_transactions, get_association_rules
 
-# ------------------ CARGAR DATOS ------------------
+st.title("🛒 Recomendador de productos - Instacart")
 
-st.set_page_config(page_title="Recomendador Instacart", layout="centered")
+tab1, tab2, tab3, tab4 = st.tabs([
+    "🔍 Buscar productos",
+    "📦 Recomendaciones por cluster",
+    "🎯 Recomendaciones personalizadas (SVD)",
+    "🧺 Reglas de asociación (Market Basket)"
+])
 
+# Cargar y procesar datos
 @st.cache_data
-def cargar_datos():
-    user_product_matrix = pd.read_pickle("user_product_matrix.pkl")
-    preds_df = pd.read_pickle("preds_df.pkl")
-    products = pd.read_csv("Dataset\products.csv")
-    return user_product_matrix, preds_df, products
+def prepare_data():
+    aisles, departments, order_products_prior, order_products_train, orders, products = load_all_data()
+    user_aisle_matrix, order_details, products_full = build_user_aisle_matrix(
+        order_products_prior, orders, products, aisles, departments
+    )
+    user_clusters, _ = segment_users(user_aisle_matrix, k=4)
+    return user_aisle_matrix, order_details, products_full, user_clusters
 
-user_product_matrix, preds_df, products = cargar_datos()
+user_aisle_matrix, order_details, products_full, user_clusters = prepare_data()
 
-st.title("🛒 Sistema de Recomendación - Instacart")
 
-# ------------------ BÚSQUEDA TF-IDF ------------------
+with tab1:
+    user_ids = user_clusters['user_id'].tolist()
+    user_input = st.number_input("Introduce tu ID de usuario:", min_value=min(user_ids), max_value=max(user_ids), value=user_ids[0])
 
-st.header("🔍 Buscar productos")
+    # Obtener cluster y recomendaciones
+    if user_input in user_ids:
+        cluster_id = user_clusters[user_clusters['user_id'] == user_input]['cluster'].values[0]
+        st.subheader(f"🧠 Usuario asignado al cluster {cluster_id}")
+        st.write("Basado en tus compras, recomendamos:")
 
-@st.cache_data
-def construir_tfidf():
-    vectorizer = TfidfVectorizer(stop_words="english")
-    tfidf_matrix = vectorizer.fit_transform(products["product_name"])
-    return vectorizer, tfidf_matrix
+        recommended = recommend_top_products_for_cluster(cluster_id, user_clusters, order_details, products_full)
+        st.table(recommended)
+    else:
+        st.warning("ID de usuario no encontrado.")
 
-vectorizer, tfidf_matrix = construir_tfidf()
+with tab2:
+    st.subheader("🔎 Búsqueda de productos (NLP)")
 
-query = st.text_input("Escribe una palabra clave:")
-if query:
-    query_vec = vectorizer.transform([query])
-    sim = cosine_similarity(query_vec, tfidf_matrix).flatten()
-    top_n = sim.argsort()[-10:][::-1]
-    resultados = products.iloc[top_n][["product_name"]]
-    st.write("🔎 Resultados más similares:")
-    st.dataframe(resultados)
+    search_query = st.text_input("Escribe el nombre de un producto (ej: leche, avena, etc.)")
 
-# ------------------ RECOMENDACIÓN SVD ------------------
+    if search_query:
+        search_engine = ProductSearchEngine(products_full)
+        results = search_engine.search(search_query, top_n=10)
+        st.write("Resultados encontrados:")
+        st.table(results)
 
-st.header("🎯 Recomendaciones SVD")
+with tab3:
+    st.subheader("🎯 Recomendaciones personalizadas usando SVD (preentrenado)")
+    user_input_svd = st.number_input("Introduce tu ID de usuario:", min_value=min(user_ids), max_value=max(user_ids), value=user_ids[0], key="svd_input")
 
-user_id_input = st.number_input("Introduce tu ID de usuario:", min_value=0, step=1)
+    if user_input_svd in user_ids:
+        svd_model = SVDRecommenderLoaded()
+        svd_recommendations = svd_model.recommend_for_user(user_input_svd, products_full)
 
-def recomendar_svd(user_id, n=5):
-    if user_id not in preds_df.index:
-        return pd.DataFrame({"Mensaje": ["❌ Usuario no encontrado."]})
-    user_row = preds_df.loc[user_id].sort_values(ascending=False)
-    productos_comprados = user_product_matrix.loc[user_id]
-    no_comprados = user_row[productos_comprados == 0]
-    top_ids = no_comprados.head(n).index
-    return products[products["product_id"].isin(top_ids)][["product_name"]]
+        st.write("Te recomendamos:")
+        st.table(svd_recommendations)
 
-if st.button("Recomendar productos"):
-    recomendaciones = recomendar_svd(user_id_input)
-    st.write("🛍 Productos recomendados:")
-    st.dataframe(recomendaciones)
+with tab4:
+    st.subheader("🧺 Productos que se compran juntos")
+
+    min_support = st.slider("Soporte mínimo:", 0.001, 0.05, 0.01, step=0.001)
+    min_conf = st.slider("Confianza mínima:", 0.1, 1.0, 0.2, step=0.05)
+
+    basket = prepare_transactions(order_details, products_full)
+    rules = get_association_rules(basket, min_support, min_conf)
+
+    if not rules.empty:
+        st.write("Reglas encontradas:")
+        st.dataframe(rules[['antecedents', 'consequents', 'support', 'confidence', 'lift']].head(10))
+    else:
+        st.warning("No se encontraron reglas con los parámetros seleccionados.")
