@@ -76,6 +76,20 @@ Desarrollada con:
 
 ---
 
+## 📚 Librerias necesarias
+
+- 🐍 Python (3.11.9)
+- 🐼 Pandas () -> Manipulación y análisis de los datos CSV
+- 🔣 Numpy	() -> Operaciones matemáticas y estructuras base
+- 🧩 Scikit-learn ()	-> KMeans para segmentación de usuarios por pasillos
+- 🎁 Surprise () -> SVD para sistema de recomendación colaborativa
+- 🏪 Mlxtend () ->	Apriori y reglas de mercado (market basket analysis)
+- 🔒 Joblib () -> Guardar y cargar el modelo entrenado en un archivo .pkl
+- 🔌 Flask () -> Crear la API para conectar el frontend con el sistema de recomendación
+- 💻 Flask-cors () -> Permitir peticiones desde Live Server (CORS)
+
+---
+
 ## 🚀 ¿Cómo ejecutar el proyecto?
 
 ### 1. Instala los requerimientos
@@ -83,6 +97,11 @@ Desarrollada con:
 ```bash
 pip install flask flask-cors pandas surprise scikit-learn mlxtend
 
+```
+### 2. Ejecutar programa
+
+```bash
+python app.py
 ```
 ---
 
