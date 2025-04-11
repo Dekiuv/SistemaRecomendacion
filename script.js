@@ -31,9 +31,9 @@ function recomendar() {
   fetch(`${API_URL}/recomendar?user_id=${userId}`)
     .then(res => res.json())
     .then(data => {
-      let html = "<h3>🔹 Recomendación basada en lo que han comprado otras personas como tú (SVD):</h3><ul>";
+      let html = "<h3>🔹 Recomendación basada en lo que han comprado otras personas (SVD):</h3><ul>";
       data.svd.forEach(prod => html += `<li>${prod}</li>`);
-      html += "</ul><h3>🔸 Recomendación basada únicamente en lo que tú has comprado (Regla):</h3><ul>";
+      html += "</ul><h3>🔸 Recomendación basada únicamente en lo que has comprado (Market):</h3><ul>";
       data.reglas.forEach(prod => html += `<li>${prod}</li>`);
       html += "</ul>";
       document.getElementById("recomendaciones").innerHTML = html;

@@ -23,11 +23,11 @@ if __name__ == "__main__":
     # ✅ Recomendaciones por SVD
     try:
         print("🔍 Cargando modelo SVD...")
-        model_svd = joblib.load("model\modelo_svd_binario.pkl")
+        model_svd = joblib.load("modelo_svd_binario.pkl")
     except:
         print("⚠️ Modelo no encontrado. Entrenando...")
         model_svd, _, _ = entrenar_svd_binario(order_products_prior, orders)
-        joblib.dump(model_svd, "model\modelo_svd_binario.pkl")
+        joblib.dump(model_svd, "modelo_svd_binario.pkl")
 
     print("🔮 Obteniendo recomendaciones por SVD...")
     recomendaciones_svd = recomendar_productos(model_svd, user_id, products, order_products_prior, n=5)
