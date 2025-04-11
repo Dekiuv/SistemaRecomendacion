@@ -1,9 +1,6 @@
 # Archivos de sistema
-*.pyc
-__pycache__/
 *.csv
 *.pkl
-
 # Archivos de entorno virtual (si usas venv)
 .env
 venv/
