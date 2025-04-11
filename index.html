@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recomendador de Compras</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>🛒 Sistema de Recomendación de Productos</h1>
+
+    <!-- 🔍 Buscador NLP -->
+    <section>
+      <h2>🔍 Buscar productos o departamentos</h2>
+      <input type="text" id="searchInput" placeholder="Ej. banana, lácteos..." />
+      <button onclick="buscar()">Buscar</button>
+      <div id="resultadosBusqueda"></div>
+    </section>
+
+    <!-- 🧑 Introducir User ID -->
+    <section>
+      <h2>🧑 Recomendaciones personalizadas</h2>
+      <input type="number" id="userIdInput" placeholder="Introduce tu ID de usuario" />
+      <button onclick="recomendar()">Ver recomendaciones</button>
+    </section>
+
+    <!-- 📊 Resultados híbridos -->
+    <section>
+      <h2>📊 Recomendaciones híbridas (SVD + Market)</h2>
+      <div id="recomendaciones"></div>
+    </section>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
