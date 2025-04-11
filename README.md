@@ -79,14 +79,14 @@ Desarrollada con:
 ## 📚 Librerias necesarias
 
 - 🐍 Python (3.11.9)
-- 🐼 Pandas () -> Manipulación y análisis de los datos CSV
-- 🔣 Numpy	() -> Operaciones matemáticas y estructuras base
-- 🧩 Scikit-learn ()	-> KMeans para segmentación de usuarios por pasillos
-- 🎁 Surprise () -> SVD para sistema de recomendación colaborativa
-- 🏪 Mlxtend () ->	Apriori y reglas de mercado (market basket analysis)
-- 🔒 Joblib () -> Guardar y cargar el modelo entrenado en un archivo .pkl
-- 🔌 Flask () -> Crear la API para conectar el frontend con el sistema de recomendación
-- 💻 Flask-cors () -> Permitir peticiones desde Live Server (CORS)
+- 🐼 Pandas (2.2.3) -> Manipulación y análisis de los datos CSV
+- 🔣 Numpy	(1.24.4) -> Operaciones matemáticas y estructuras base
+- 🧩 Scikit-learn (1.6.1)	-> KMeans para segmentación de usuarios por pasillos
+- 🎁 Surprise (1.1.4) -> SVD para sistema de recomendación colaborativa
+- 🏪 Mlxtend (0.23.4) ->	Apriori y reglas de mercado (market basket analysis)
+- 🔒 Joblib (1.4.2) -> Guardar y cargar el modelo entrenado en un archivo .pkl
+- 🔌 Flask (3.1.0) -> Crear la API para conectar el frontend con el sistema de recomendación
+- 💻 Flask-cors (5.0.1) -> Permitir peticiones desde Live Server (CORS)
 
 ---
 
