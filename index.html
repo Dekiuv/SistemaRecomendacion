@@ -2,36 +2,55 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Recomendador de Compras</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SUPERMERCADOS D.IA</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="Image\supermercado.png" type="image/png">
 </head>
 <body>
-  <div class="container">
-    <h1>🛒 Sistema de Recomendación de Productos</h1>
-
-    <!-- 🔍 Buscador NLP -->
-    <section>
-      <h2>🔍 Buscar productos o departamentos</h2>
-      <input type="text" id="searchInput" placeholder="Ej. banana, lácteos..." />
+  <header>
+    <a href=""><img src="Image\supermercado.png" alt="Logo" class="logo"></a>
+    <h1>SUPERMERCADOS D.IA</h1>
+    <div class="search-container">
+      <input type="text" id="busqueda" placeholder="Buscar productos o id de usuario">
       <button onclick="buscar()">Buscar</button>
-      <div id="resultadosBusqueda"></div>
-    </section>
+    </div>
+  </header>
 
-    <!-- 🧑 Introducir User ID -->
-    <section>
-      <h2>🧑 Recomendaciones personalizadas</h2>
-      <input type="number" id="userIdInput" placeholder="Introduce tu ID de usuario" />
-      <button onclick="recomendar()">Ver recomendaciones</button>
+  <main class="contenido">
+    <section class="resultados">
+    <h2>Busqueda: <span id="textoBusqueda" style="font-weight: normal;"></span></h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Departamento</th>
+            <th>Pasillo</th>
+          </tr>
+        </thead>
+        <tbody id="tablaResultados"></tbody>
+      </table>
     </section>
+  
+    <section class="mapa">
+      <img src="Image\MAPA.png" alt="Mapa de supermercado">
+    </section>
+  </main>
+  
 
-    <!-- 📊 Resultados híbridos -->
-    <section>
-      <h2>📊 Recomendaciones híbridas (SVD + Market)</h2>
-      <div id="recomendaciones"></div>
-    </section>
-  </div>
+  <footer>
+    <p>© Grupo 3: Marc Galán, Oriol Fernández y Diego Roque</p>
+    <a href="https://github.com/Dekiuv/SistemaRecomendacion"><img src="Image\github.png" alt="GitHub" class="github-icon"></a>
+  </footer>
 
   <script src="script.js"></script>
+  <!-- 🔄 Modal de carga -->
+<div id="modalCarga" class="modal-carga">
+    <div class="modal-contenido">
+      <div class="spinner"></div>
+      <p>Cargando recomendaciones...</p>
+    </div>
+</div>
+  
 </body>
 </html>

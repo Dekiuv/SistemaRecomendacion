@@ -1,45 +1,72 @@
 const API_URL = "http://127.0.0.1:5000";
 
-// 🔍 Buscador NLP
 function buscar() {
-  const query = document.getElementById("searchInput").value;
-  if (!query) return alert("Escribe algo para buscar.");
+  const input = document.getElementById("busqueda").value.trim().toLowerCase();
+  document.getElementById("textoBusqueda").textContent = input;
+  const tabla = document.getElementById("tablaResultados");
+  const modal = document.getElementById("modalCarga");
+  tabla.innerHTML = "";
 
-  fetch(`${API_URL}/buscar?query=${query}`)
-    .then(res => res.json())
-    .then(data => {
-      let html = "<ul>";
-      data.forEach(prod => {
-        html += `<li>${prod}</li>`;
+  if (!input) {
+    alert("Introduce un producto o un id de usuario.");
+    return;
+  }
+
+  modal.style.display = "flex"; // Mostrar carga
+
+  if (input.startsWith("id")) {
+    const user_id = parseInt(input.replace("id", ""));
+    if (isNaN(user_id)) {
+      modal.style.display = "none";
+      alert("Formato inválido. Usa id + número. Ej: id27");
+      return;
+    }
+
+    fetch(`${API_URL}/recomendar_svd?user_id=${user_id}`)
+      .then(res => res.json())
+      .then(data => {
+        modal.style.display = "none"; // Ocultar carga
+        if (data.error) {
+          tabla.innerHTML = `<tr><td colspan="3">❌ ${data.error}</td></tr>`;
+        } else {
+          data.recomendaciones.forEach(prod => {
+            tabla.innerHTML += `
+              <tr>
+                <td>${prod.product_name}</td>
+                <td>${prod.department}</td>
+                <td>${prod.aisle}</td>
+              </tr>
+            `;
+          });
+        }
+      })
+      .catch(() => {
+        modal.style.display = "none";
+        tabla.innerHTML = `<tr><td colspan="3">❌ Error al obtener recomendaciones.</td></tr>`;
       });
-      html += "</ul>";
-      document.getElementById("resultadosBusqueda").innerHTML = html;
-    })
-    .catch(err => {
-      document.getElementById("resultadosBusqueda").innerText = "❌ Error al buscar.";
-      console.error(err);
-    });
-}
 
-// 🧠 Recomendaciones híbridas
-function recomendar() {
-  const userId = document.getElementById("userIdInput").value;
-  if (!userId) return alert("Introduce un user_id válido.");
-
-  document.getElementById("recomendaciones").innerHTML = "🔄 Generando recomendaciones...";
-
-  fetch(`${API_URL}/recomendar?user_id=${userId}`)
-    .then(res => res.json())
-    .then(data => {
-      let html = "<h3>🔹 Recomendación basada en lo que han comprado otras personas (SVD):</h3><ul>";
-      data.svd.forEach(prod => html += `<li>${prod}</li>`);
-      html += "</ul><h3>🔸 Recomendación basada únicamente en lo que has comprado (Market):</h3><ul>";
-      data.reglas.forEach(prod => html += `<li>${prod}</li>`);
-      html += "</ul>";
-      document.getElementById("recomendaciones").innerHTML = html;
-    })
-    .catch(err => {
-      document.getElementById("recomendaciones").innerText = "❌ Error al obtener recomendaciones.";
-      console.error(err);
-    });
+  } else {
+    fetch(`${API_URL}/buscar_producto?query=${encodeURIComponent(input)}`)
+      .then(res => res.json())
+      .then(data => {
+        modal.style.display = "none"; // Ocultar carga
+        if (!data.length) {
+          tabla.innerHTML = `<tr><td colspan="3">❌ No se encontraron productos.</td></tr>`;
+        } else {
+          data.forEach(prod => {
+            tabla.innerHTML += `
+              <tr>
+                <td>${prod.product_name}</td>
+                <td>${prod.department}</td>
+                <td>${prod.aisle}</td>
+              </tr>
+            `;
+          });
+        }
+      })
+      .catch(() => {
+        modal.style.display = "none";
+        tabla.innerHTML = `<tr><td colspan="3">❌ Error al buscar producto.</td></tr>`;
+      });
+  }
 }
