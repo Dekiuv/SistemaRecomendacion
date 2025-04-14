@@ -4,26 +4,37 @@ Este proyecto es un sistema completo de recomendación de productos para superme
 
 ## 🎯 Objetivo del proyecto
 
-- Analizar el historial de compras de los usuarios.
+- Analizar el historial de compras de usuarios.
 - Ofrecer recomendaciones de productos personalizadas.
 - Mejorar la experiencia del cliente y potenciar las ventas.
-
----
 
 ## 📁 Estructura del proyecto
 
 ```plaintext
 SistemaRecomendacion/
+├── data_loader.py             # Carga de los CSV
+├── Creadorcluster.csv         # Segmentación de usuarios por K-Means
+├── Codo+grafico.csv           # Visualizar grafico codo y distribución de usuarios en clusters
+├── entreno.py                 # Entrena un modelo SVD por cada cluster
+├── ver_metricas_modelos.py    # Muestra las métricas (accuracy, precision, recall, F1) de cada modelo entrenado.
+├── recomendador.py            # Recomendación para un usuario y cluster.
+├── nlp.py                     # Permite buscar productos similares usando procesamiento de lenguaje natural (TF-IDF).
+├── market_basket.py           # Reglas de asociación (Apriori)
 ├── app.py                     # Backend Flask principal
-├── data_loader.py             # Carga de los CSV (función load_data)
-├── recomendador_svd.py        # Entrenamiento y predicción con SVD
-├── market_basket.py           # Reglas de asociación (Apriori) y recomendaciones por reglas
-├── sistema_hibrido.py         # Motor de recomendación que combina SVD + Reglas
-├── segmentos.csv              # Segmentación de usuarios por K-Means
-├── modelo_svd_binario.pkl     # Modelo SVD entrenado (excluido de GitHub si es muy grande)
 ├── index.html                 # Interfaz HTML principal
 ├── styles.css                 # Estilos CSS
 ├── script.js                  # Lógica del frontend en JavaScript
+│
+├── Image/                     # Carpeta con imagenes de la página web
+│   ├── MAPA.png
+│   ├── github.png
+│   └── supermercado.png
+│
+├── modelos_por_clusters/      # Carpeta con modelos enternados
+│   ├── modelo_svd_cluster0.pkl
+│   ├── modelo_svd_cluster1.pkl
+│   ├── modelo_svd_cluster2.pkl
+│   └── modelo_svd_cluster3.pkl
 │
 ├── data/                      # Carpeta con los CSV
 │   ├── Aisles.csv
@@ -41,22 +52,37 @@ SistemaRecomendacion/
 ## 📊 Algoritmos utilizados
 
 ### ✅ 1. Filtrado Colaborativo (SVD)
-- Utiliza la librería `Surprise` para predecir productos que podrían interesar al usuario según lo que han comprado otros usuarios similares.
-- Entrena un modelo SVD con la variable `reordered` como calificación implícita.
+- Utilizamos **Surprise (SVD)** para generar recomendaciones personalizadas.
+- Entrenamos un modelo por cada **cluster de usuarios**, para mejorar la precisión.
+- Se basa en la variable `reordered` como puntuación binaria (0 = no recompra, 1 = sí).
+- El sistema predice productos no comprados que podrían interesar al usuario basándose en usuarios similares dentro de su mismo perfil.
 
 ### ✅ 2. Reglas de Asociación (Apriori)
-- Analiza millones de pedidos para encontrar combinaciones frecuentes de productos (market basket analysis).
-- Usa `mlxtend` para extraer reglas tipo:  
-  “Si compras A, probablemente compres B”.
+- Aplicamos **mlxtend (Apriori)** para extraer reglas frecuentes entre productos comprados juntos (market basket analysis).
+- Calculamos métricas como **soporte**, **confianza** y **lift**.
+- Generamos reglas de la forma:  
+  _“Si compras A, probablemente compres B”_.
+- Filtramos las reglas **por tipo de usuario (cluster)** para que las recomendaciones sean más coherentes con su perfil.
 
 ### ✅ 3. Segmentación de Usuarios (K-Means)
-- Agrupa usuarios según sus compras por pasillo (`aisle_id`) para descubrir patrones de comportamiento.
-- Cada usuario recibe un segmento con una descripción clara.
+- Agrupamos a los usuarios usando **KMeans** en base a sus compras por `aisle_id` y `department_id`.
+- Creamos **clusters con perfiles definidos** como:
+  - 🧼 Hogar completo & básicos
+  - 🌿 Saludable y fresco
+  - 🍞 Familiar y variado
+  - 🍷 Gourmet & bebidas
+- Cada usuario recibe un cluster y sus recomendaciones se ajustan a este perfil.
 
-### ✅ 4. Sistema Híbrido
-- Combina las recomendaciones SVD + Reglas de mercado.
-- SVD sugiere productos nuevos de otros usuarios similares.
-- Las reglas proponen productos complementarios a tus compras.
+### ✅ 4. Sistema Híbrido Inteligente
+- Combinamos **SVD + Reglas de asociación** para generar recomendaciones más sólidas:
+  - SVD recomienda productos **no comprados** pero **populares entre similares**.
+  - Apriori propone **productos complementarios** a las compras anteriores del usuario.
+- Las recomendaciones están **filtradas por tipo de usuario**, basadas en su comportamiento y preferencias.
+
+### ✅ 5. Búsqueda Semántica (TF-IDF)
+- Incluimos un motor **NLP** para que el usuario pueda buscar productos escribiendo una palabra clave.
+- Usamos **TF-IDF + Cosine Similarity** para encontrar coincidencias en nombres de productos.
+- Permite búsquedas flexibles y relevantes aunque no se escriba el nombre exacto.
 
 ---
 
@@ -69,10 +95,10 @@ Desarrollada con:
 - Backend en Flask + CORS
 
 ### Funcionalidades:
-- 🧠 Buscador por palabra clave (producto o categoría)
-- 🧑 Input para introducir un `user_id`
-- 📊 Resultados de recomendación híbrida
-- 📍 Muestra el tipo de comprador (segmento)
+- Recomendaciones por ID de usuario basadas en algoritmos de filtrado colaborativo (SVD)
+- Recomendaciones por perfil de usuario, segmentado por clústeres de consumo (K-Means)
+- Búsqueda semántica (NLP): permite buscar productos escribiendo palabras clave
+- Interfaz web visual e intuitiva
 
 ---
 
@@ -108,7 +134,7 @@ python app.py
 ## ⚠️ Aviso
 
 - La carpeta `/data` (con los archivos CSV)
-- El archivo `modelo_svd_binario.pkl` (modelo SVD entrenado)
+- Y la carpeta `/modelos_por_cluster` (con los modelos entrenados)
 
 **no están incluidos en este repositorio** por superar el límite de 100 MB por archivo.
 
@@ -122,6 +148,6 @@ python app.py
 
 ### 📌 ¿Qué hacer si el modelo no está?
 
-Si `modelo_svd_binario.pkl` no está disponible, el backend Flask **lo entrenará automáticamente** al iniciar `app.py`.
+La carpeta `/modelos_por_cluster` no está disponible, ejecutar `entreno.py` para obtener los modelos.
 
 ---
