@@ -7,7 +7,7 @@ scikit-surprise==1.1.3
 
 # Procesamiento de datos
 pandas==2.2.2
-numpy==1.26.4
+numpy==1.21.6
 joblib==1.4.0
 
 # Machine Learning (segmentación y NLP)
