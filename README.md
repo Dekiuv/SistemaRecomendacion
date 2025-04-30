@@ -37,7 +37,7 @@ SistemaRecomendacion/
 │   └── modelo_svd_cluster3.pkl
 │
 ├── data/                      # Carpeta con los CSV
-│   ├── analisis_cancer.csv
+│   ├── Aisles.csv
 │   ├── departments.csv
 │   ├── order_products__prior.csv
 │   ├── order_products__train.csv
