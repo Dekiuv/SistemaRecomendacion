@@ -1,7 +1,6 @@
 import pandas as pd
-from data_loader import load_data
 
-# 🧠 Diccionario de nombres por cluster
+# Diccionario de nombres por cluster
 nombres_cluster_combinado = {
     0: "🧼 Hogar completo & básicos",
     1: "🌿 Saludable y fresco",
@@ -9,7 +8,7 @@ nombres_cluster_combinado = {
     3: "🍷 Gourmet & bebidas"
 }
 
-# 📦 Departamentos clave por cluster
+# Departamentos clave por cluster
 departamentos_por_cluster = {
     0: ["household", "cleaning products", "personal care", "oral hygiene"],
     1: ["produce", "dairy eggs"],
@@ -18,26 +17,25 @@ departamentos_por_cluster = {
 }
 
 def recomendar_por_cluster_combinado(user_id, top_n=5):
-    data = load_data()
-    orders = data["data/orders"]
-    order_products_prior = data["data/order_products_prior"]
-    products = data["data/products"]
-    departments = data["data/departments"]
-    aisles = data["data/Aisles.csv"]
-
-    # Fusionar producto completo
-    products_full = products.merge(aisles, on="aisle_id").merge(departments, on="department_id")
-
-    # Cargar los clusters
+    # 🚫 No cargamos todo → solo lo necesario
+    orders = pd.read_csv("data/orders_cleaned.csv", usecols=["order_id", "user_id"])
+    order_products_prior = pd.read_csv("data/order_products__prior.csv", usecols=["order_id", "product_id", "reordered"])
+    products = pd.read_csv("data/products.csv", usecols=["product_id", "product_name", "aisle_id", "department_id"])
+    departments = pd.read_csv("data/departments.csv")
+    aisles = pd.read_csv("data/aisles.csv")
     user_segments = pd.read_csv("data/user_segments_combinado.csv")
+
     if user_id not in user_segments["user_id"].values:
         return None, None, None
 
     cluster_id = int(user_segments[user_segments["user_id"] == user_id]["cluster"].values[0])
     cluster_name = nombres_cluster_combinado.get(cluster_id, "Desconocido")
 
+    # Fusionar productos
+    products_full = products.merge(aisles, on="aisle_id").merge(departments, on="department_id")
+
     usuarios_cluster = user_segments[user_segments["cluster"] == cluster_id]["user_id"].values
-    df = order_products_prior.merge(orders[["order_id", "user_id"]], on="order_id")
+    df = order_products_prior.merge(orders, on="order_id")
     df_cluster = df[df["user_id"].isin(usuarios_cluster)]
 
     products_cluster = df_cluster.merge(products_full, on="product_id")
