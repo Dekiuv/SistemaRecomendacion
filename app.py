@@ -1,15 +1,31 @@
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify, send_file, send_from_directory
 from flask_cors import CORS
 from recomendador import recomendar_por_cluster_combinado
 from nlp import buscar_producto_o_departamento
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 CORS(app)
 
-# Ruta principal que devuelve directamente index.html desde la raíz
 @app.route("/")
 def home():
     return send_file("index.html")
+
+@app.route('/Image/<path:filename>')
+def image_files(filename):
+    return send_from_directory('Image', filename)
+
+from flask import send_from_directory
+
+# CSS
+@app.route('/style.css')
+def style():
+    return send_from_directory('.', 'style.css')
+
+# JS
+@app.route('/script.js')
+def script():
+    return send_from_directory('.', 'script.js')
+
 
 @app.route("/recomendar_svd")
 def recomendar_svd():
@@ -33,4 +49,4 @@ def buscar_producto():
     return jsonify(resultados)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)

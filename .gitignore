@@ -1,6 +1,6 @@
 # Archivos de sistema
-*.csv
-*.pkl
+# *.csv
+# *.pkl
 # Archivos de entorno virtual (si usas venv)
 .env
 venv/

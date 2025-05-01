@@ -1,4 +1,4 @@
-const API_URL = "http://127.0.0.1:5000";
+const API_URL = "https://sistemarecomendaciong3.onrender.com";
 
 function buscar() {
   const input = document.getElementById("busqueda").value.trim().toLowerCase();
