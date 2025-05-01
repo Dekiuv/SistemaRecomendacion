@@ -19,11 +19,11 @@ departamentos_por_cluster = {
 
 def recomendar_por_cluster_combinado(user_id, top_n=5):
     data = load_data()
-    orders = data["orders"]
-    order_products_prior = data["order_products_prior"]
-    products = data["products"]
-    departments = data["departments"]
-    aisles = data["aisles"]
+    orders = data["data/orders"]
+    order_products_prior = data["data/order_products_prior"]
+    products = data["data/products"]
+    departments = data["data/departments"]
+    aisles = data["data/Aisles.csv"]
 
     # Fusionar producto completo
     products_full = products.merge(aisles, on="aisle_id").merge(departments, on="department_id")

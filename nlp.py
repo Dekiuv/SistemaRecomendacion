@@ -6,7 +6,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 def cargar_datos():
     products = pd.read_csv("data/products.csv")
     departments = pd.read_csv("data/departments.csv")
-    aisles = pd.read_csv("data/aisles.csv")  # <-- Asegúrate de tener este archivo
+    aisles = pd.read_csv("data/Aisles.csv")
 
     products = products.merge(departments, on="department_id")
     products = products.merge(aisles, on="aisle_id")
