@@ -17,9 +17,8 @@ departamentos_por_cluster = {
 }
 
 def recomendar_por_cluster_combinado(user_id, top_n=5):
-    # 🚫 No cargamos todo → solo lo necesario
     orders = pd.read_csv("data/orders_cleaned.csv", usecols=["order_id", "user_id"])
-    order_products_prior = pd.read_csv("data/order_products__prior.csv", usecols=["order_id", "product_id", "reordered"])
+    order_products_prior = pd.read_csv("data/order_products__prior.csv", usecols=["order_id", "product_id"])
     products = pd.read_csv("data/products.csv", usecols=["product_id", "product_name", "aisle_id", "department_id"])
     departments = pd.read_csv("data/departments.csv")
     aisles = pd.read_csv("data/aisles.csv")
@@ -31,14 +30,15 @@ def recomendar_por_cluster_combinado(user_id, top_n=5):
     cluster_id = int(user_segments[user_segments["user_id"] == user_id]["cluster"].values[0])
     cluster_name = nombres_cluster_combinado.get(cluster_id, "Desconocido")
 
-    # Fusionar productos
     products_full = products.merge(aisles, on="aisle_id").merge(departments, on="department_id")
 
     usuarios_cluster = user_segments[user_segments["cluster"] == cluster_id]["user_id"].values
-    df = order_products_prior.merge(orders, on="order_id")
-    df_cluster = df[df["user_id"].isin(usuarios_cluster)]
 
-    products_cluster = df_cluster.merge(products_full, on="product_id")
+    # 🔥 Filtrar las órdenes antes del merge
+    orders_cluster = orders[orders["user_id"].isin(usuarios_cluster)]
+    df = order_products_prior.merge(orders_cluster, on="order_id")
+
+    products_cluster = df.merge(products_full, on="product_id")
     filtrados = products_cluster[products_cluster["department"].isin(departamentos_por_cluster[cluster_id])]
 
     productos_populares = filtrados["product_id"].value_counts().index.tolist()
